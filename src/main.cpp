@@ -211,10 +211,7 @@ int main(){
 
     Pump pump;
 
-    pump.read_inicial_data();
+    pump.read_inicial_data("inp_data.json");
 
-    //auto rrr = pump.read_inicial_data("input_params.csv");
-
-    //cout << rrr.at(2);
     return 0;
 }

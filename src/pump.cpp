@@ -1,17 +1,5 @@
 #include "pump.h"
 
-// перегрузка << для вывода словарей разных типов
-template<typename K, typename V>
-ostream& operator<<(ostream& stream, map<K,V>& ex){
-
-    for (auto const& item:ex){
-
-        stream << item.first << ": " << item.second << endl;
-    }
-
-    return stream;
-}
-
 Pump::Pump()
 {
 
@@ -22,44 +10,44 @@ Pump::~Pump(){
 
 }
 
-void Pump::read_inicial_data()
+void Pump::read_inicial_data(const string& input_data)
 {
-    InputPumpParams input_params;
+    InpMap inp;
 
-    struct_mapping::reg(&InputPumpParams::strr, "XX");
-//    struct_mapping::reg(&InputPumpParams::component, "AA");
-//    struct_mapping::reg(&InputPumpParams::mass_flow, "NN");
-//    struct_mapping::reg(&InputPumpParams::outlet_pressure_pump, "MM");
-//    struct_mapping::reg(&InputPumpParams::inlet_pressure_pump, "QQ");
-//    struct_mapping::reg(&InputPumpParams::steam_pressure, "BB");
-//    struct_mapping::reg(&InputPumpParams::fluid_temperature_pump, "DD");
-//    struct_mapping::reg(&InputPumpParams::density_pump, "RR");
-//    struct_mapping::reg(&InputPumpParams::viscosity_pump, "PP");
+    //записать в поле component структуры InputPumpParams значение соответствующее ключу "Название компонента" в json и т.д
+    sm::reg(&InputPumpParams::component, "Название компонента");
+    sm::reg(&InputPumpParams::mass_flow, "Расход через насос (кг/сек)");
+    sm::reg(&InputPumpParams::outlet_pressure_pump, "Давление на выходе из насоса (бар)");
+    sm::reg(&InputPumpParams::inlet_pressure_pump, "Давление на входе в насос (бар)");
+    sm::reg(&InputPumpParams::steam_pressure, "Давление насыщенного пара рабочего тела (бар)");
+    sm::reg(&InputPumpParams::fluid_temperature_pump, "Температура рабочего тела на входе в насос (K)");
+    sm::reg(&InputPumpParams::density_pump, "Плотность рабочей жидкости насоса (кг/м3)");
+    sm::reg(&InputPumpParams::viscosity_pump, "Вязкость рабочей жидкости насоса (Па*с)");
 
-    //QString inp_path = "inp_data.json";
+    sm::reg(&InpMap::inp, "input_data");
 
-    //std::istringstream inp_json_data(inp_path);
+    //файл json считывается в stringstream, который парсится в структуру
+    ifstream inp_path(input_data);
 
+    stringstream ss;
 
-std::istringstream inp_json_data (R"json(
+    if(inp_path){
 
-                   {
-                                  "XX" : "adasdasdasd"
+        ss << inp_path.rdbuf();
+        inp_path.close();
+    }
 
+//из json в структуру
+//в параметрах экземпляр структуры и строковый поток
+sm::map_json_to_struct(inp, ss);
 
-                   }
+//объект потока вывода
+std::ostringstream out_json;
 
+//из структуры в json
+sm::map_struct_to_json(inp, out_json, " ");
 
-
-
-                   )json");
-
-
-    struct_mapping::map_json_to_struct(input_params, inp_json_data);
-
-std::cout << input_params.strr;
-
-
+std::cout << out_json.str() << std::endl;
 
 
 }
